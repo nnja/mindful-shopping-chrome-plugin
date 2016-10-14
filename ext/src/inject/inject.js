@@ -12,8 +12,6 @@ chrome.extension.sendMessage({}, function(response) {
   }, 10);
 });
 
-var override = false;
-
 function addMindfulness(){
 	console.log("addMindfulness");
 
@@ -25,18 +23,13 @@ function addMindfulness(){
 	";
 
 	document.getElementById("add-to-cart-button").onclick = function(purchaseEvent) {
-		console.log("clicked 'add to cart' button, override = " + override);
-		if(override){
-			//This part's not workin yet
-			return true;
-		}else{
-			injectHTMLOverlay(purchaseEvent);
-			return false;
-		}
+		console.log("clicked 'add to cart' button");
+		injectHTMLOverlay();
+		return false;
 	};
 }
 
-function injectHTMLOverlay(purchaseEvent){
+function injectHTMLOverlay(){
 	document.getElementById("mndfl-wrapper").innerHTML = "\
 		<div id='mndfl-confirm' style='font-size: 2em; text-color: #333; line-height: 1.4em;'>\
 			<div>Are you sure you want to buy this product?</div>\
@@ -49,14 +42,11 @@ function injectHTMLOverlay(purchaseEvent){
 		</div>\
 		";
 		document.getElementById('mndfl-buy').onclick = function(e){
-			console.log(purchaseEvent);
-			mndfl_buy(purchaseEvent);
+			mndfl_buy();
 		}
 }
 
-function mndfl_buy(purchaseEvent){
-	if(purchaseEvent){
-		override = true;
-		document.getElementById("add-to-cart-button").dispatchEvent(purchaseEvent);
-	}
+function mndfl_buy(){
+	document.getElementById("add-to-cart-button").onclick = null;
+	document.getElementById("add-to-cart-button").click();
 }
