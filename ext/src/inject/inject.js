@@ -5,7 +5,58 @@ chrome.extension.sendMessage({}, function(response) {
       // ----------------------------------------------------------
       // This part of the script triggers when page is done loading
       // alert("Hello. This message was sent from scripts/inject.js");
-      // ----------------------------------------------------------    
+      // ----------------------------------------------------------
+
+			addMindfulness();
     }
   }, 10);
 });
+
+var override = false;
+
+function addMindfulness(){
+	console.log("addMindfulness");
+
+	var parentNode = document.getElementById("add-to-cart-button").parentNode.parentNode.parentNode;
+	parentNode.innerHTML += "\
+	<div id='mndfl-wrapper'>\
+		<div id='mndfl-loaded' style='color: #888; text-align: center; font-style: italic;'>Mindfulness loaded.</div>\
+	</div>\
+	";
+
+	document.getElementById("add-to-cart-button").onclick = function(purchaseEvent) {
+		console.log("clicked 'add to cart' button, override = " + override);
+		if(override){
+			//This part's not workin yet
+			return true;
+		}else{
+			injectHTMLOverlay(purchaseEvent);
+			return false;
+		}
+	};
+}
+
+function injectHTMLOverlay(purchaseEvent){
+	document.getElementById("mndfl-wrapper").innerHTML = "\
+		<div id='mndfl-confirm' style='font-size: 2em; text-color: #333; line-height: 1.4em;'>\
+			<div>Are you sure you want to buy this product?</div>\
+			<div>\
+				<span><a href='#' id='mndfl-buy'>Buy!</a></span>\
+				or \
+				<span><a href='https://www.youtube.com/watch?v=SPNltn7QgoE' target='_blank'>Not now</a></span>\
+			</div>\
+			<div>&nbsp;</div>\
+		</div>\
+		";
+		document.getElementById('mndfl-buy').onclick = function(e){
+			console.log(purchaseEvent);
+			mndfl_buy(purchaseEvent);
+		}
+}
+
+function mndfl_buy(purchaseEvent){
+	if(purchaseEvent){
+		override = true;
+		document.getElementById("add-to-cart-button").dispatchEvent(purchaseEvent);
+	}
+}
